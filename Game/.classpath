@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="assets"/>
+	<classpathentry kind="src" path="Game"/>
+	<classpathentry kind="src" path="GameEngine"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Game/lwjgl/natives"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lwjgl/jars/AppleJavaExtensions.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/asm-debug-all.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/jinput.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/laf-plugin-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/laf-widget-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/log4j-api-2.0-beta9.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/lwjgl_test.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/lwjgl_util_applet.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/lwjgl-debug.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/lwjgl.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/lzma.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/PNGDecoder.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/slick-util.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/substance-7.2.1.jar"/>
+	<classpathentry kind="lib" path="lwjgl/jars/trident-7.2.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
