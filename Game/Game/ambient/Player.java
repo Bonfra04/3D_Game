@@ -18,9 +18,9 @@ import gameEngine.toolbox.Timer;
 
 public class Player extends Entity {
 
-	private static final float WALK_SPEED = 20;
-	public static final float GRAVITY = 40;
-	private static final float JUMP_POWER = 12;
+	private static final float WALK_SPEED = 20f * 2;
+	public static final float GRAVITY = 40.0f;
+	private static final float JUMP_POWER = 15.0f;
 
 	private static final float START_WALKING_TIME = 200;
 	private static final float STOP_WALKING_TIME = 50;
@@ -73,15 +73,10 @@ public class Player extends Entity {
 		AudioMaster.setListenerData(super.getPosition().x, super.getPosition().y, super.getPosition().z);
 	}
 
-	public void move(List<Terrain> terrains, List<Entity> enitities) {
+	public void move(List<Entity> enitities) {
 		this.currentSpeed = 0;
-
-		for (Terrain terrain : terrains)
-			if (terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z) != null) {
-				gravityFlow(terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z));
-				break;
-			} else if (terrain == terrains.get(terrains.size() - 1))
-				gravityFlow(null);
+		
+		gravityFlow(Terrain.getHeight(super.getPosition().x, super.getPosition().z));
 
 		checkInputs();
 
@@ -294,5 +289,9 @@ public class Player extends Entity {
 
 		}
 
+	}
+	
+	public void setFlying(boolean flying) {
+		this.flyng = flying;
 	}
 }

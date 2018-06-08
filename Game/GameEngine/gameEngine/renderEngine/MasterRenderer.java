@@ -11,6 +11,7 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector4f;
 
+import cube.cubeRenderer;
 import gameEngine.entities.Camera;
 import gameEngine.entities.Entity;
 import gameEngine.entities.EntityRenderer;
@@ -27,12 +28,12 @@ import gameEngine.terrains.TerrainShader;
 public class MasterRenderer {
 
 	public static final float FOV = 40;
-	public static final float NEAR_PLANE = 0.1f;
-	public static final float FAR_PLANE = 10000;
+	public static final float NEAR_PLANE = 0.01f;
+	public static final float FAR_PLANE = SkyboxRenderer.SIZE * 2 + SkyboxRenderer.SIZE / 2;
 
-	public static float skyRED = 0.5444f;
-	public static float skyGREEN = 0.62f;
-	public static float skyBLUE = 0.69f;
+	public static float skyRED = 175.0f / 255.0f;
+	public static float skyGREEN = 208.0f / 255.0f;
+	public static float skyBLUE = 254.0f / 255.0f;
 
 	private Matrix4f projectionMatrix;
 
@@ -49,6 +50,8 @@ public class MasterRenderer {
 	private SkyboxRenderer skyboxRenderer;
 	private ShadowMapMasterRenderer shadowMapRenderer;
 
+	private cubeRenderer cubeRenderer;
+
 	public MasterRenderer(Loader loader, Camera camera) {
 		enableCulling();
 		createProjectionMatrix();
@@ -57,6 +60,8 @@ public class MasterRenderer {
 		terrainRenderer = new TerrainRenderer(terrainShader, projectionMatrix);
 		skyboxRenderer = new SkyboxRenderer(loader, projectionMatrix);
 		shadowMapRenderer = new ShadowMapMasterRenderer(camera);
+
+		cubeRenderer = new cubeRenderer(projectionMatrix);
 	}
 
 	public static void enableCulling() {
@@ -89,9 +94,12 @@ public class MasterRenderer {
 		terrainRenderer.render(terrains, shadowMapRenderer.getToShadowMapSpaceMatrix());
 		terrainShader.stop();
 
-		// FIXME
 		// skyboxRenderer.render(camera, skyRED, skyGREEN, skyBLUE);
-
+		
+		disableCulling();
+		cubeRenderer.render(camera);
+		enableCulling();
+		
 		terrains.clear();
 		entities.clear();
 	}
@@ -116,8 +124,10 @@ public class MasterRenderer {
 		for (Entity entity : entityList) {
 			processEntity(entity);
 		}
+
 		shadowMapRenderer.render(entities, light);
 		entities.clear();
+
 	}
 
 	public int getShadowMapTexture() {
@@ -157,9 +167,10 @@ public class MasterRenderer {
 			Vector4f clipPlane) {
 
 		for (Terrain terrain : terrains)
-			processTerrain(terrain);
+			this.processTerrain(terrain);
+
 		for (Entity entity : entities)
-			processEntity(entity);
+			this.processEntity(entity);
 		render(lights, camera, clipPlane);
 	}
 

@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import ambient.Block;
 import ambient.Player;
+import cube.Cube;
 import gameEngine.biomes.MountainGenerator;
 import gameEngine.biomes.PlainGenerator;
 import gameEngine.entities.Entity;
@@ -31,27 +32,33 @@ public class Main {
 
 	public static Controller controller;
 	public static boolean enableController = false;
-
+	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-
+		
 		loadController();
 
 		ResourceManager.preInit();
 
-		Player player = new Player("person", "playerTexture", SCALE, new Vector3f(800.0f, 100.0f, 40.0f),
+		Player player = new Player("person", "playerTexture", SCALE, new Vector3f(100.0f, 100.0f, 100.0f),
 				new Vector3f(0, 0, 0));
+		
+//		player.setFlying(true);
 
 		ResourceManager.postInit(player);
-
+		
 		WorldGenerator.generateWorldPortion(0, 0, SEED, new PlainGenerator(0, 0, SEED));
 		System.out.println("1");
+		
 		WorldGenerator.generateWorldPortion(2, 1, SEED, new PlainGenerator(2, 1, SEED));
 		System.out.println("2");
+		
 		WorldGenerator.generateWorldPortion(1, 0, SEED, new MountainGenerator(1, 0, SEED));
 		System.out.println("3");
+		
 		WorldGenerator.generateWorldPortion(1, 1, SEED, new PlainGenerator(1, 1, SEED));
 		System.out.println("4");
+		
 		WorldGenerator.generateWorldPortion(2, 0, SEED, new PlainGenerator(2, 0, SEED));
 		System.out.println("5");
 
@@ -74,12 +81,14 @@ public class Main {
 
 		Entity block = new Block("brick", 20, 1, -20);
 
+		Cube c = new Cube("brick");
+		
 		while (!Display.isCloseRequested()) {
 
 			if (enableController)
 				controller.poll();
 
-			player.move(ResourceManager.getTerrains(), ResourceManager.getEntities());
+			player.move(ResourceManager.getEntities());
 
 			// particleSystem.generateParticles(ePlayer.getPosition());
 

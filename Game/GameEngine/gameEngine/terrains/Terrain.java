@@ -62,6 +62,35 @@ public class Terrain {
 		return blendMap;
 	}
 
+	public static Biome getBiome(float worldX, float worldZ) {
+
+		Biome biome = null;
+
+		if (Terrain.getHeight(worldX, worldZ) != null)
+			for (Terrain terrain : ResourceManager.getTerrains())
+				if (terrain.getHeightOfTerrain(worldX, worldZ) != null) {
+					biome = terrain.getBiome();
+					break;
+				}
+		
+		return biome;
+
+	}
+
+	public static Float getHeight(float worldX, float worldZ) {
+
+		Float answer = null;
+
+		for (Terrain terrain : ResourceManager.getTerrains()) {
+			answer = terrain.getHeightOfTerrain(worldX, worldZ);
+			if (answer != null)
+				break;
+		}
+
+		return answer;
+
+	}
+
 	public Float getHeightOfTerrain(float worldX, float worldZ) {
 		float terrainX = worldX - this.x;
 		float terrainZ = worldZ - this.z;
@@ -83,6 +112,7 @@ public class Terrain {
 					new Vector3f(1, heights[gridX + 1][gridZ + 1], 1), new Vector3f(0, heights[gridX][gridZ + 1], 1),
 					new Vector2f(xCoord, zCoord));
 		}
+
 		return answer;
 	}
 

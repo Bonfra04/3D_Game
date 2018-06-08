@@ -1,5 +1,7 @@
 package gameEngine.entities;
 
+import java.util.List;
+
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -8,8 +10,8 @@ import gameEngine.terrains.Terrain;
 
 public class Camera {
 
-	private float distanceFromPlayer = 30;
-	private float angleAroundPlayer = 0;
+	private float distanceFromPlayer;
+	private float angleAroundPlayer;
 
 	private Vector3f position;
 	private float pitch;
@@ -21,17 +23,23 @@ public class Camera {
 
 	public Camera(Entity player) {
 		this.player = player;
-		Mouse.setCursorPosition(DisplayManager.WIDTH / 2, DisplayManager.HEIGHT / 2);
 		pitch = 20;
 		yaw = 0;
-		position = new Vector3f(0, 10, 70);
+		position = new Vector3f(0, 0, 70);
 		angleAroundPlayer = 0;
-		distanceFromPlayer = 24;
+		distanceFromPlayer = 24f;
 
+		Mouse.setCursorPosition(DisplayManager.WIDTH / 2, DisplayManager.HEIGHT / 2);
 		Mouse.setGrabbed(true);
 	}
 
-	public void move(Terrain terrain) {
+	public void move(List<Terrain> terrains) {
+
+		Terrain terrain = null;
+
+		for (Terrain t : terrains)
+			if (t.getHeightOfTerrain(this.getPosition().x, this.getPosition().z) != null)
+				terrain = t;
 
 		calculatePitch();
 		calculateZoom();
@@ -50,19 +58,27 @@ public class Camera {
 		float zOffset = (float) (horizDistance * Math.cos(Math.toRadians(theta)));
 		position.x = player.getPosition().x - xOffset;
 		position.z = player.getPosition().z - zOffset;
+		position.y = player.getPosition().y + vertiDistance + 4;
 
-		if (terrain.getHeightOfTerrain(position.x, position.z) != null) {
-			if ((player.getPosition().y + vertiDistance + 4) < terrain.getHeightOfTerrain(position.x, position.z) + 1) {
-				position.y = terrain.getHeightOfTerrain(position.x, position.z) + 1;
-				terrainPitch = pitch;
-			} else {
-				position.y = player.getPosition().y + vertiDistance + 4;
-				terrainPitch = 0;
-			}
-		} else {
-			position.y = player.getPosition().y + vertiDistance + 4;
-			terrainPitch = 0;
-		}
+		// if (terrain != null)
+		// if (terrain.getHeightOfTerrain(position.x, position.z) != null) {
+		// if ((player.getPosition().y + vertiDistance + 1) <
+		// terrain.getHeightOfTerrain(position.x, position.z)
+		// + 1) {
+		// position.y = terrain.getHeightOfTerrain(position.x, position.z) + 1;
+		// terrainPitch = pitch;
+		// } else {
+		// position.y = player.getPosition().y + vertiDistance + 1;
+		// terrainPitch = 0;
+		// }
+		// } else {
+		// position.y = player.getPosition().y + vertiDistance + 1;
+		// terrainPitch = 0;
+		// }
+		// else {
+		// position.y = player.getPosition().y + vertiDistance + 1;
+		// terrainPitch = 0;
+		// }
 	}
 
 	private float calculateHorizontalDistance() {
@@ -79,7 +95,7 @@ public class Camera {
 		distanceFormPlayer -= zoomLevel;
 		if (distanceFormPlayer < 0.0)
 			distanceFormPlayer = 0.0f;
-		else if (distanceFormPlayer > 36.0)
+		else if (distanceFormPlayer > 36.0f)
 			distanceFormPlayer = 36.0f;
 		this.distanceFromPlayer = distanceFormPlayer;
 	}

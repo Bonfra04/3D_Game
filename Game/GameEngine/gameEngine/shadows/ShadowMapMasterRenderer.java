@@ -24,7 +24,7 @@ public class ShadowMapMasterRenderer {
 	private Matrix4f lightViewMatrix = new Matrix4f();
 	private Matrix4f projectionViewMatrix = new Matrix4f();
 	private Matrix4f offset = createOffset();
-	
+
 	private ShadowMapEntityRenderer entityRenderer;
 
 	public ShadowMapMasterRenderer(Camera camera) {

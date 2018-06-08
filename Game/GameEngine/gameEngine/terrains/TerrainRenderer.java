@@ -46,6 +46,7 @@ public class TerrainRenderer {
 		bindTextures(terrain);
 
 		shader.loadShineVariables(1, 0);
+		shader.loadBiome(terrain.getBiome());
 	}
 
 	private void bindTextures(Terrain terrain) {

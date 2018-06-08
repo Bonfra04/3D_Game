@@ -18,7 +18,7 @@ public class AudioMaster {
 			AL.create();
 		} catch (LWJGLException e) {
 			System.err.println("Error while preparing sounds");
-//			AudioMaster.init();
+			AudioMaster.init();
 		}
 
 	}

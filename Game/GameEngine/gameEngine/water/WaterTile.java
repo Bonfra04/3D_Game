@@ -4,7 +4,7 @@ import gameEngine.resourcesManager.ResourceManager;
 
 public class WaterTile {
 
-	public static final float TILE_SIZE = 400;
+	public static final float TILE_SIZE = 800;
 
 	private float height;
 	private float x, z;

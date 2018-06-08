@@ -20,10 +20,9 @@ uniform mat4 toShadowMapSpace;
 
 uniform float useFakeLighting;
 
-//FIXME
-const float density = 0;//0.0035;
+const float density = 0.0007;
 const float gradient = 5.0;
-const float transitionDistance = 0;//10.0;
+const float transitionDistance = 10.0;
 
 uniform float shadowDistance;
 

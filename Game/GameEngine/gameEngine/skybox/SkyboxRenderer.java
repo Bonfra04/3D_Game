@@ -12,7 +12,7 @@ import gameEngine.renderEngine.Loader;
 
 public class SkyboxRenderer {
 
-	private static final float SIZE = 500.0f ;
+	public static final float SIZE = 1000.0f ;
 
 	private static final float[] VERTICES = { -SIZE, SIZE, -SIZE, -SIZE, -SIZE, -SIZE, SIZE, -SIZE, -SIZE, SIZE, -SIZE,
 			-SIZE, SIZE, SIZE, -SIZE, -SIZE, SIZE, -SIZE, -SIZE, -SIZE, SIZE, -SIZE, -SIZE, -SIZE, -SIZE, SIZE, -SIZE,
@@ -63,7 +63,7 @@ public class SkyboxRenderer {
 		GL13.glActiveTexture(GL13.GL_TEXTURE1);
 		GL11.glBindTexture(GL13.GL_TEXTURE_CUBE_MAP, nightTexture);
 
-		time = (System.currentTimeMillis() / 1000 / 60 / 60) % 24 + 1;
+		time = 12;//(System.currentTimeMillis() / 1000 / 60 / 60) % 24 + 1;
 		if (time > 24)
 			time = 1;
 

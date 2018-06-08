@@ -6,15 +6,16 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import gameEngine.biomes.Biome;
 import gameEngine.entities.Camera;
 import gameEngine.entities.Light;
 import gameEngine.shaders.ShaderProgram;
 import gameEngine.toolbox.Maths;
 
 public class TerrainShader extends ShaderProgram {
-	
+
 	private static final int MAX_LIGHTS = 4;
-	
+
 	private static final String VERTEX_FILE = "/gameEngine/terrains/terrainVertexShader.glsl";
 	private static final String FRAGMENT_FILE = "/gameEngine/terrains/terrainFragmentShader.glsl";
 
@@ -38,6 +39,7 @@ public class TerrainShader extends ShaderProgram {
 	private int location_shadowMap;
 	private int location_shadowDistance;
 	private int location_mapSize;
+	private int location_biomeBlend;
 
 	public TerrainShader() {
 		super(VERTEX_FILE, FRAGMENT_FILE);
@@ -69,30 +71,35 @@ public class TerrainShader extends ShaderProgram {
 		location_shadowMap = super.getUniformLocation("shadowMap");
 		location_shadowDistance = super.getUniformLocation("shadowDistance");
 		location_mapSize = super.getUniformLocation("mapSize");
-		
+		location_biomeBlend = super.getUniformLocation("biomeBlend");
+
 		location_lightPosition = new int[MAX_LIGHTS];
 		location_lightColour = new int[MAX_LIGHTS];
 		location_attenuation = new int[MAX_LIGHTS];
-		
-		for(int i = 0; i < MAX_LIGHTS; i++) {
+
+		for (int i = 0; i < MAX_LIGHTS; i++) {
 			location_lightPosition[i] = super.getUniformLocation("lightPosition[" + i + "]");
 			location_lightColour[i] = super.getUniformLocation("lightColour[" + i + "]");
 			location_attenuation[i] = super.getUniformLocation("attenuation[" + i + "]");
 		}
 	}
-	
+
+	public void loadBiome(Biome biome) {
+		super.load4DVector(location_biomeBlend, biome.getBlend());
+	}
+
 	public void loadShadowMapSize(float shadowMapSize) {
 		super.loadFloat(location_mapSize, shadowMapSize);
 	}
-	
+
 	public void loadShadowDistance(float shadowDistance) {
 		super.loadFloat(location_shadowDistance, shadowDistance);
 	}
-	
+
 	public void loadClipPlane(Vector4f plane) {
 		super.load4DVector(location_plane, plane);
 	}
-	
+
 	public void connectTextureUnits() {
 		super.loadInt(location_backgroundTexture, 0);
 		super.loadInt(location_rTexture, 1);
@@ -101,11 +108,11 @@ public class TerrainShader extends ShaderProgram {
 		super.loadInt(location_blendMap, 4);
 		super.loadInt(location_shadowMap, 5);
 	}
-	
+
 	public void loadToShadowSpaceMatrix(Matrix4f matrix) {
 		super.loadMatrix(location_toShadowMapSpace, matrix);
 	}
-	
+
 	public void loadSkyColor(float r, float g, float b) {
 		super.load3DVector(location_skyColour, new Vector3f(r, g, b));
 	}

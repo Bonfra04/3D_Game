@@ -31,6 +31,8 @@ public abstract class WorldGenerator {
 
 	protected int vertexCount;
 
+	protected boolean hasWater = true;
+
 	protected Biome biome = Biome.UNKNOWN;
 
 	public static void generateWorldPortion(int gridX, int gridZ, long seed, WorldGenerator worldGenerator) {
@@ -44,8 +46,9 @@ public abstract class WorldGenerator {
 
 		Terrain terrain = new Terrain(gridX, gridZ, Main.LOADER, terrainTexturePack, blendMap, seed, worldGenerator);
 
-		new WaterTile(gridX != 0 ? gridX * Terrain.SIZE + Terrain.SIZE / 2 : Terrain.SIZE - Terrain.SIZE / 2,
-				gridZ != 0 ? gridZ * Terrain.SIZE + Terrain.SIZE / 2 : Terrain.SIZE - Terrain.SIZE / 2, 0);
+		if (worldGenerator.hasWater)
+			new WaterTile(gridX != 0 ? gridX * Terrain.SIZE + Terrain.SIZE / 2 : Terrain.SIZE - Terrain.SIZE / 2,
+					gridZ != 0 ? gridZ * Terrain.SIZE + Terrain.SIZE / 2 : Terrain.SIZE - Terrain.SIZE / 2, 0);
 
 		Map<Float, Float> coords = new HashMap<Float, Float>();
 		Random random = new Random(seed);
@@ -121,6 +124,12 @@ public abstract class WorldGenerator {
 			float amp = (float) Math.pow(ROUGHNESS, i) * AMPLITUDE;
 			total += getInterpolatedNoise((x + xOffset) * freq, (z + zOffset) * freq) * amp;
 		}
+
+		if (x % Terrain.SIZE == 0)
+			if (Terrain.getBiome(x + 1, z) != this.getBiome() & Terrain.getBiome(x + 1, z) != null)
+				if (Terrain.getHeight(x + 1, z) != null)
+					total = Terrain.getHeight(x + 1, z);
+
 		return total;
 	}
 
@@ -156,5 +165,9 @@ public abstract class WorldGenerator {
 	protected float getNoise(int x, int z) {
 		random.setSeed(x * 49632 + z * 325176 + seed);
 		return random.nextFloat() * 2f - 1f;
+	}
+
+	public void setHasWater(boolean hasWater) {
+		this.hasWater = hasWater;
 	}
 }

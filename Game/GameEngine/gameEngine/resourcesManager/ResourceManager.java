@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector4f;
 
+import cube.Cube;
 import gameEngine.audio.AudioMaster;
 import gameEngine.entities.Camera;
 import gameEngine.entities.Entity;
@@ -38,6 +39,7 @@ public class ResourceManager {
 	private static final List<GuiTexture> GUIS = new ArrayList<GuiTexture>();
 	private static final List<Light> LIGHTS = new ArrayList<Light>();
 	private static final List<GUIText> TEXTS = new ArrayList<GUIText>();
+	private static final List<Cube> CUBES = new ArrayList<Cube>();
 
 	private static Camera camera;
 
@@ -68,30 +70,34 @@ public class ResourceManager {
 	}
 
 	public static void updateDisplay() {
-		camera.move(TERRAINS.get(0));
+		camera.move(TERRAINS);
 
 		ParticleMaster.update(camera);
 
 		masterRenderer.renderShadowMap(ENTITIES, LIGHTS.get(0));
 
-		GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
+		if (!ResourceManager.getWaters().isEmpty()) {
+			GL11.glEnable(GL30.GL_CLIP_DISTANCE0);
 
-		fbos.bindReflectionFrameBuffer();
-		float distance = 2 * (camera.getPosition().y - ResourceManager.getWaters().get(0).getHeight());
-		camera.getPosition().y -= distance;
-		camera.invertPich();
-		masterRenderer.renderScene(ResourceManager.getEntities(), ResourceManager.getTerrains(), LIGHTS, camera,
-				new Vector4f(0, 1, 0, -ResourceManager.getWaters().get(0).getHeight() + 1));
-		camera.getPosition().y += distance;
-		camera.invertPich();
+			fbos.bindReflectionFrameBuffer();
 
-		fbos.bindRefractionFrameBuffer();
-		masterRenderer.renderScene(ResourceManager.getEntities(), ResourceManager.getTerrains(), LIGHTS, camera,
-				new Vector4f(0, -1, 0, ResourceManager.getWaters().get(0).getHeight()));
+			float distance = 2 * (camera.getPosition().y - ResourceManager.getWaters().get(0).getHeight());
+			camera.getPosition().y -= distance;
 
-		fbos.unbindCurrentFrameBuffer();
+			camera.invertPich();
+			masterRenderer.renderScene(ResourceManager.getEntities(), ResourceManager.getTerrains(), LIGHTS, camera,
+					new Vector4f(0, 1, 0, -ResourceManager.getWaters().get(0).getHeight() + 1));
+			camera.getPosition().y += distance;
+			camera.invertPich();
 
-		GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
+			fbos.bindRefractionFrameBuffer();
+			masterRenderer.renderScene(ResourceManager.getEntities(), ResourceManager.getTerrains(), LIGHTS, camera,
+					new Vector4f(0, -1, 0, ResourceManager.getWaters().get(0).getHeight()));
+
+			fbos.unbindCurrentFrameBuffer();
+
+			GL11.glDisable(GL30.GL_CLIP_DISTANCE0);
+		}
 
 		masterRenderer.renderScene(ResourceManager.getEntities(), ResourceManager.getTerrains(), LIGHTS, camera,
 				new Vector4f(0, 0, 0, 0));
@@ -194,5 +200,17 @@ public class ResourceManager {
 
 	public static List<GUIText> getTexts() {
 		return TEXTS;
+	}
+	
+	public static void addCube(Cube cube) {
+		CUBES.add(cube);
+	}
+
+	public static void removeCube(Cube cube) {
+		CUBES.remove(cube);
+	}
+
+	public static List<Cube> getCubes() {
+		return CUBES;
 	}
 }

@@ -24,6 +24,8 @@ uniform vec3 skyColour;
 
 uniform float mapSize;
 
+uniform vec4 biomeBlend;
+
 const int pcfCount = 5;
 const float totalTexels = (pcfCount * 2.0 + 1.0) * (pcfCount * 2.0 + 1.0);
 
@@ -86,5 +88,8 @@ void main(void) {
 
 	out_Color = vec4(totalDiffuse, 1.0) * totalColour
 			+ vec4(totalSpecular, 1.0);
+
+	out_Color += biomeBlend;
+
 	out_Color = mix(vec4(skyColour, 1.0), out_Color, visibility);
 }
