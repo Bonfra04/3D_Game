@@ -12,6 +12,7 @@ import ambient.Player;
 import cube.Cube;
 import gameEngine.biomes.MountainGenerator;
 import gameEngine.biomes.PlainGenerator;
+import gameEngine.collision.CollisionBox;
 import gameEngine.entities.Entity;
 import gameEngine.entities.Light;
 import gameEngine.font.FontType;
@@ -21,6 +22,7 @@ import gameEngine.particles.ParticleSystem;
 import gameEngine.particles.ParticleTexture;
 import gameEngine.renderEngine.Loader;
 import gameEngine.resourcesManager.ResourceManager;
+import gameEngine.terrains.Terrain;
 import gameEngine.terrains.WorldGenerator;
 
 public class Main {
@@ -32,33 +34,33 @@ public class Main {
 
 	public static Controller controller;
 	public static boolean enableController = false;
-	
+
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		
+
 		loadController();
 
 		ResourceManager.preInit();
 
 		Player player = new Player("person", "playerTexture", SCALE, new Vector3f(100.0f, 100.0f, 100.0f),
 				new Vector3f(0, 0, 0));
-		
-//		player.setFlying(true);
+
+		// player.setFlying(true);
 
 		ResourceManager.postInit(player);
-		
+
 		WorldGenerator.generateWorldPortion(0, 0, SEED, new PlainGenerator(0, 0, SEED));
 		System.out.println("1");
-		
+
 		WorldGenerator.generateWorldPortion(2, 1, SEED, new PlainGenerator(2, 1, SEED));
 		System.out.println("2");
-		
+
 		WorldGenerator.generateWorldPortion(1, 0, SEED, new MountainGenerator(1, 0, SEED));
 		System.out.println("3");
-		
+
 		WorldGenerator.generateWorldPortion(1, 1, SEED, new PlainGenerator(1, 1, SEED));
 		System.out.println("4");
-		
+
 		WorldGenerator.generateWorldPortion(2, 0, SEED, new PlainGenerator(2, 0, SEED));
 		System.out.println("5");
 
@@ -82,7 +84,11 @@ public class Main {
 		Entity block = new Block("brick", 20, 1, -20);
 
 		Cube c = new Cube("brick");
-		
+
+		Entity tree = new Entity("tree", "tree", Main.SCALE * 10, new Vector3f(20, Terrain.getHeight(20, 20), 20),
+				new Vector3f(0, 0, 0));
+		tree.addCollisionBox(new CollisionBox(5, 5, 5));
+
 		while (!Display.isCloseRequested()) {
 
 			if (enableController)

@@ -1,34 +1,52 @@
 package gameEngine.toolbox;
 
+import java.awt.geom.Rectangle2D;
+
 import org.lwjgl.util.vector.Vector3f;
 
 public class Rectangle3D {
 
-	private Vector3f tL;
-	private Vector3f tR;
-	private Vector3f bL;
-	private Vector3f Br;
+	private Vector3f vertex;
+	private float width;
+	private float length;
 
-	public Rectangle3D(Vector3f tL, Vector3f tR, Vector3f bL, Vector3f Br) {
-		this.tL = tL;
-		this.tR = tR;
-		this.bL = bL;
-		this.Br = Br;
+	public Rectangle3D(Vector3f vertex, float width, float length) {
+		this.vertex = vertex;
+		this.width = width;
+		this.length = length;
 	}
 
-	public Vector3f getTL() {
-		return tL;
+	public boolean intersects(Rectangle3D rectangle3d) {
+
+		Rectangle2D tRrectangle2D = new Rectangle2D.Float(this.vertex.x, this.vertex.z, this.width, this.length);
+
+		Rectangle2D rRectangle2d = new Rectangle2D.Float(rectangle3d.vertex.x, rectangle3d.vertex.z, rectangle3d.width,
+				rectangle3d.length);
+
+		return (tRrectangle2D.intersects(rRectangle2d) & this.vertex.y == rectangle3d.vertex.y);
 	}
 
-	public Vector3f getTR() {
-		return tR;
+	public Vector3f getVertex() {
+		return vertex;
 	}
 
-	public Vector3f getBL() {
-		return bL;
+	public void setVertex(Vector3f vertex) {
+		this.vertex = vertex;
 	}
 
-	public Vector3f getBR() {
-		return Br;
+	public float getWidth() {
+		return width;
+	}
+
+	public void setWidth(float width) {
+		this.width = width;
+	}
+
+	public float getLenght() {
+		return length;
+	}
+
+	public void setLenght(float lenght) {
+		this.length = lenght;
 	}
 }

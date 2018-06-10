@@ -9,8 +9,6 @@ import game.Main;
 import gameEngine.audio.AudioMaster;
 import gameEngine.audio.Source;
 import gameEngine.collision.CollisionBox;
-import gameEngine.collision.CreatureCollisionBox;
-import gameEngine.collision.Position;
 import gameEngine.entities.Entity;
 import gameEngine.renderEngine.DisplayManager;
 import gameEngine.terrains.Terrain;
@@ -18,7 +16,7 @@ import gameEngine.toolbox.Timer;
 
 public class Player extends Entity {
 
-	private static final float WALK_SPEED = 20f * 2;
+	private static final float WALK_SPEED = 40f;
 	public static final float GRAVITY = 40.0f;
 	private static final float JUMP_POWER = 15.0f;
 
@@ -47,7 +45,7 @@ public class Player extends Entity {
 	private Source source = AudioMaster.generateSource();
 	private int jumpSound = AudioMaster.loadSound("bounce");
 
-	private CreatureCollisionBox collisionBox = new CreatureCollisionBox(2, 5, 2, new Vector3f(0, 0, 0));
+	private CollisionBox collisionBox = new CollisionBox(2, 5, 2, new Vector3f(0, 0, 0));
 
 	public Player(String model, String texture, int totalTextureRows, int textureIndex, float scale, Vector3f position,
 			Vector3f rotation) {
@@ -75,22 +73,18 @@ public class Player extends Entity {
 
 	public void move(List<Entity> enitities) {
 		this.currentSpeed = 0;
-		
+
 		gravityFlow(Terrain.getHeight(super.getPosition().x, super.getPosition().z));
-
 		checkInputs();
-
-		currentSpeed = assignedSpeed;
-
 		smoothMovement();
-
-		checkCollision(enitities);
 
 		float distance = currentSpeed * DisplayManager.getFrameTimeSeconds();
 		float dx = (float) (distance * Math.sin(Math.toRadians(super.getRotY())));
 		float dz = (float) (distance * Math.cos(Math.toRadians(super.getRotY())));
 
-		this.increasePosition(dx, 0, dz);
+		this.increasePosition(dx, 0, dz);		
+		
+		checkCollision(enitities);
 	}
 
 	private void smoothMovement() {
@@ -135,12 +129,18 @@ public class Player extends Entity {
 		for (CollisionBox box : super.getCollisionBoxes())
 			box.update(super.getPosition());
 
-		for (Entity e : enitities)
-			if (e != this)
-				for (CollisionBox box : e.getCollisionBoxes())
-					if (collisionBox.collideTo(box) != Position.EXTERNAL) {
-						// TODO COLLISION HANDLING
+		for (CollisionBox tBox : super.getCollisionBoxes())
+			for (Entity e : enitities)
+				if (e != this)
+					for (CollisionBox box : e.getCollisionBoxes()) {
+
+						System.out.println(box.getPosition() + " " + tBox.getPosition());
+						
+						if (box.collide(tBox))
+							super.setPosition(super.getLastPosition());
+
 					}
+
 	}
 
 	private void jump() {
@@ -273,6 +273,8 @@ public class Player extends Entity {
 
 		if (speed != 0)
 			this.assignedSpeed = speed;
+		
+		currentSpeed = assignedSpeed;
 
 		if (stopped)
 			stopping = false;
@@ -290,7 +292,7 @@ public class Player extends Entity {
 		}
 
 	}
-	
+
 	public void setFlying(boolean flying) {
 		this.flyng = flying;
 	}

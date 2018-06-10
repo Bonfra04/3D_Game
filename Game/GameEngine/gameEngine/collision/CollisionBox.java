@@ -1,8 +1,9 @@
 package gameEngine.collision;
 
-import java.awt.geom.Rectangle2D;
-
 import org.lwjgl.util.vector.Vector3f;
+
+import gameEngine.toolbox.Parallelepiped;
+import gameEngine.toolbox.Rectangle3D;
 
 public class CollisionBox {
 
@@ -13,8 +14,18 @@ public class CollisionBox {
 	private Vector3f offsets;
 	private Vector3f center;
 
-	private Rectangle2D frontRectangle;
-	private Rectangle2D topRectangle;
+	private Parallelepiped box;
+
+	public CollisionBox(float width, float height, float length) {
+		this.width = width;
+		this.height = height;
+		this.length = length;
+		this.position = new Vector3f(0, 0, 0);
+		this.offsets = new Vector3f(0, 0, 0);
+		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
+
+		this.updateParallelepiped();
+	}
 
 	public CollisionBox(float width, float height, float length, Vector3f offsets) {
 		this.width = width;
@@ -24,11 +35,18 @@ public class CollisionBox {
 		this.offsets = offsets;
 		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
 
-		frontRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x, this.position.y + this.offsets.y,
-				width, height);
+		this.updateParallelepiped();
+	}
 
-		topRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x,
-				this.position.z + this.length + this.offsets.z, width, length);
+	public CollisionBox(Vector3f position, float width, float height, float length) {
+		this.width = width;
+		this.height = height;
+		this.length = length;
+		this.position = position;
+		this.offsets = new Vector3f(0, 0, 0);
+		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
+
+		this.updateParallelepiped();
 	}
 
 	public CollisionBox(float width, float height, float length, Vector3f offsets, Vector3f position) {
@@ -39,20 +57,11 @@ public class CollisionBox {
 		this.offsets = offsets;
 		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
 
-		frontRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x, this.position.y + this.offsets.y,
-				width, height);
-
-		topRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x,
-				this.position.z + this.length + this.offsets.z, width, length);
+		this.updateParallelepiped();
 	}
 
 	public boolean collide(CollisionBox box) {
-
-		if (this.frontRectangle.intersects(box.getFrontRectangle())
-				& this.topRectangle.intersects(box.getTopRectangle()))
-			return true;
-
-		return false;
+		return (this.box.intersects(box.box));
 	}
 
 	public float getWidth() {
@@ -71,11 +80,7 @@ public class CollisionBox {
 		this.position = position;
 		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
 
-		frontRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x, this.position.y + this.offsets.y,
-				width, height);
-
-		topRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x,
-				this.position.z + this.length + this.offsets.z, width, length);
+		this.updateParallelepiped();
 	}
 
 	public Vector3f getPosition() {
@@ -86,23 +91,15 @@ public class CollisionBox {
 		this.position = position;
 		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
 
-		frontRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x, this.position.y + this.offsets.y,
-				width, height);
+		this.updateParallelepiped();
+	}
 
-		topRectangle = new Rectangle2D.Float(this.position.x + this.offsets.x,
-				this.position.z + this.length + this.offsets.z, width, length);
+	private void updateParallelepiped() {
+		this.box = new Parallelepiped(new Rectangle3D(this.position, this.width, this.length), this.height);
 	}
 
 	public Vector3f getOffsets() {
 		return offsets;
-	}
-
-	public Rectangle2D getFrontRectangle() {
-		return frontRectangle;
-	}
-
-	public Rectangle2D getTopRectangle() {
-		return topRectangle;
 	}
 
 	public Vector3f getCenter() {
