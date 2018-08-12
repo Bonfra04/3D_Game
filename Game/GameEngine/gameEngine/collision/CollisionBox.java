@@ -3,7 +3,6 @@ package gameEngine.collision;
 import org.lwjgl.util.vector.Vector3f;
 
 import gameEngine.toolbox.Parallelepiped;
-import gameEngine.toolbox.Rectangle3D;
 
 public class CollisionBox {
 
@@ -17,36 +16,15 @@ public class CollisionBox {
 	private Parallelepiped box;
 
 	public CollisionBox(float width, float height, float length) {
-		this.width = width;
-		this.height = height;
-		this.length = length;
-		this.position = new Vector3f(0, 0, 0);
-		this.offsets = new Vector3f(0, 0, 0);
-		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
-
-		this.updateParallelepiped();
+		this(width, height, length, new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
 	}
 
 	public CollisionBox(float width, float height, float length, Vector3f offsets) {
-		this.width = width;
-		this.height = height;
-		this.length = length;
-		this.position = new Vector3f(0, 0, 0);
-		this.offsets = offsets;
-		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
-
-		this.updateParallelepiped();
+		this(width, height, length, offsets, new Vector3f(0, 0, 0));
 	}
 
 	public CollisionBox(Vector3f position, float width, float height, float length) {
-		this.width = width;
-		this.height = height;
-		this.length = length;
-		this.position = position;
-		this.offsets = new Vector3f(0, 0, 0);
-		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
-
-		this.updateParallelepiped();
+		this(width, height, length, new Vector3f(0, 0, 0), position);
 	}
 
 	public CollisionBox(float width, float height, float length, Vector3f offsets, Vector3f position) {
@@ -55,58 +33,52 @@ public class CollisionBox {
 		this.length = length;
 		this.position = position;
 		this.offsets = offsets;
-		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
+		this.center = new Vector3f(position.x + offsets.x + width / 2, position.y + offsets.y + height / 2,
+				position.z + offsets.z + length / 2);
 
-		this.updateParallelepiped();
-	}
-
-	public boolean collide(CollisionBox box) {
-		return (this.box.intersects(box.box));
-	}
-
-	public float getWidth() {
-		return width;
-	}
-
-	public float getHeight() {
-		return height;
-	}
-
-	public float getLength() {
-		return length;
+		this.box = new Parallelepiped(Vector3f.add(position, offsets, new Vector3f()), this.width, this.height,
+				this.length);
 	}
 
 	public void update(Vector3f position) {
-		this.position = position;
-		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
+		this.position = Vector3f.add(position, this.offsets, new Vector3f());
+		this.center = new Vector3f(this.position.x + this.offsets.x + this.width / 2,
+				this.position.y + this.offsets.y + this.height / 2, this.position.z + this.offsets.z + this.length / 2);
 
-		this.updateParallelepiped();
+		this.box.modify(Vector3f.add(this.position, this.offsets, new Vector3f()), this.width, this.height,
+				this.length);
+	}
+
+	public boolean collide(CollisionBox box) {
+		return this.box.collide(box.box);
+	}
+
+	public float getWidth() {
+		return this.width;
+	}
+
+	public float getHeight() {
+		return this.height;
+	}
+
+	public float getLength() {
+		return this.length;
 	}
 
 	public Vector3f getPosition() {
-		return new Vector3f(position.x + offsets.x, position.y + offsets.y, position.z + offsets.z);
+		return new Vector3f(this.position.x + this.offsets.x, this.position.y + this.offsets.y,
+				this.position.z + this.offsets.z);
 	}
 
 	public void setPosition(Vector3f position) {
-		this.position = position;
-		this.center = new Vector3f(position.x + width / 2, position.y + height / 2, position.z + length / 2);
-
-		this.updateParallelepiped();
-	}
-
-	private void updateParallelepiped() {
-		this.box = new Parallelepiped(new Rectangle3D(this.position, this.width, this.length), this.height);
+		this.update(position);
 	}
 
 	public Vector3f getOffsets() {
-		return offsets;
+		return this.offsets;
 	}
 
 	public Vector3f getCenter() {
-		return center;
-	}
-
-	public void setCenter(Vector3f center) {
-		this.center = center;
+		return this.center;
 	}
 }

@@ -2,53 +2,30 @@ package gameEngine.toolbox;
 
 import java.awt.geom.Rectangle2D;
 
+import org.lwjgl.util.vector.Vector3f;
+
 public class Parallelepiped {
 
-	private Rectangle3D base;
-	private float height;
+	private Rectangle2D top;
+	private Rectangle2D side;
+	private Rectangle2D front;
 
-	public Parallelepiped(Rectangle3D base, float height) {
-		this.base = base;
-		this.height = height;
+	public Parallelepiped(Vector3f position, float width, float height, float lenght) {
+		this.update(position, width, height, lenght);
 	}
 
-	public boolean intersects(Parallelepiped parallelepiped) {
-
-		Rectangle2D tBase = new Rectangle2D.Float(this.base.getVertex().x, this.base.getVertex().z,
-				this.getBase().getWidth(), this.getBase().getLenght());
-
-		Rectangle2D rBase = new Rectangle2D.Float(parallelepiped.base.getVertex().x, parallelepiped.base.getVertex().z,
-				parallelepiped.getBase().getWidth(), parallelepiped.getBase().getLenght());
-
-		Rectangle2D tFront = new Rectangle2D.Float(this.base.getVertex().x, this.base.getVertex().y,
-				this.base.getWidth(), this.height);
-
-		Rectangle2D pFront = new Rectangle2D.Float(parallelepiped.base.getVertex().x, parallelepiped.base.getVertex().y,
-				parallelepiped.base.getWidth(), parallelepiped.height);
-
-		Rectangle2D tSide = new Rectangle2D.Float(this.base.getVertex().z, this.base.getVertex().y,
-				this.base.getLenght(), this.height);
-
-		Rectangle2D pSide = new Rectangle2D.Float(parallelepiped.base.getVertex().z, parallelepiped.base.getVertex().y,
-				parallelepiped.base.getLenght(), parallelepiped.height);
-
-		return (tBase.intersects(rBase) & (tFront.intersects(pFront) | tSide.intersects(pSide)));
-
+	public boolean collide(Parallelepiped p) {
+		return top.intersects(p.top) & side.intersects(p.side) & front.intersects(p.front);
 	}
 
-	public Rectangle3D getBase() {
-		return base;
+	public void modify(Vector3f position, float width, float height, float lenght) {
+		this.update(position, width, height, lenght);
 	}
 
-	public void setBase(Rectangle3D base) {
-		this.base = base;
+	private void update(Vector3f position, float width, float height, float lenght) {
+		this.top = new Rectangle2D.Float(position.x, position.z, width, lenght);
+		this.side = new Rectangle2D.Float(position.z, position.y, lenght, height);
+		this.front = new Rectangle2D.Float(position.x, position.y, width, height);
 	}
 
-	public float getHeight() {
-		return height;
-	}
-
-	public void setHeight(float height) {
-		this.height = height;
-	}
 }

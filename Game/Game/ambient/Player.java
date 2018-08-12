@@ -12,7 +12,6 @@ import gameEngine.collision.CollisionBox;
 import gameEngine.entities.Entity;
 import gameEngine.renderEngine.DisplayManager;
 import gameEngine.terrains.Terrain;
-import gameEngine.toolbox.Timer;
 
 public class Player extends Entity {
 
@@ -20,27 +19,14 @@ public class Player extends Entity {
 	public static final float GRAVITY = 40.0f;
 	private static final float JUMP_POWER = 15.0f;
 
-	private static final float START_WALKING_TIME = 200;
-	private static final float STOP_WALKING_TIME = 50;
-
 	private float currentWalkSpeed = WALK_SPEED;
-	private Timer timer = new Timer();
 
 	private float currentSpeed = 0;
-	private float assignedSpeed = 0;
-
 	private float upwardsSpeed = 0;
 
 	private boolean isInAir = false;
-
+	private boolean isOnSomething = false;
 	private boolean flyng = false;
-
-	private Direction lastDirection = Direction.STATIC;
-
-	private boolean isNowPressing = false;
-	private boolean lastPressing = false;
-	private boolean stopping = false;
-	private boolean stopped = false;
 
 	private Source source = AudioMaster.generateSource();
 	private int jumpSound = AudioMaster.loadSound("bounce");
@@ -73,59 +59,35 @@ public class Player extends Entity {
 
 	public void move(List<Entity> enitities) {
 		this.currentSpeed = 0;
-
-		gravityFlow(Terrain.getHeight(super.getPosition().x, super.getPosition().z));
-		checkInputs();
-		smoothMovement();
+		this.checkInputs();
 
 		float distance = currentSpeed * DisplayManager.getFrameTimeSeconds();
 		float dx = (float) (distance * Math.sin(Math.toRadians(super.getRotY())));
 		float dz = (float) (distance * Math.cos(Math.toRadians(super.getRotY())));
+		float dy = this.gravityFlow(Terrain.getHeight(super.getPosition().x, super.getPosition().z));
 
-		this.increasePosition(dx, 0, dz);		
-		
-		checkCollision(enitities);
+		Vector3f velocity = new Vector3f(dx, dy, dz);
+
+		boolean[][] enable = this.checkCollision(enitities, velocity);
+
+		if (!enable[0][1]) {
+			this.isOnSomething = true;
+			this.isInAir = false;
+		} else {
+			this.isOnSomething = false;
+		}
+
+		this.increasePosition(enable[0][0] ? velocity.x : 0, enable[0][1] ? velocity.y : 0,
+				enable[0][2] ? velocity.z : 0);
 	}
 
-	private void smoothMovement() {
-		if (timer.isRunning() & !stopping & !stopped) {
-			timer.update();
-			if (timer.getTime() >= START_WALKING_TIME)
-				timer.stop();
+	private boolean[][] checkCollision(List<Entity> enitities, Vector3f velocity) {
+		boolean[][] enable = new boolean[2][3];
+		for (int i = 0; i < enable[0].length; i++) {
+			enable[0][i] = true;
+			enable[1][i] = true;
+		}
 
-			currentSpeed = ((timer.getTime() - timer.getTime() % (START_WALKING_TIME / assignedSpeed))
-					/ (START_WALKING_TIME / assignedSpeed));
-
-		} else if (stopping & !stopped) {
-
-			if (timer.getTime() >= STOP_WALKING_TIME) {
-				stopped = true;
-				stopping = false;
-				timer.stop();
-
-				currentSpeed = 0;
-			} else {
-				if (!timer.running)
-					timer.start();
-
-				timer.update();
-
-				currentSpeed = assignedSpeed
-						- ((timer.getTime() - timer.getTime() % (STOP_WALKING_TIME / assignedSpeed))
-								/ (STOP_WALKING_TIME / assignedSpeed));
-			}
-		} else if (stopped)
-			currentSpeed = 0;
-
-		if (lastDirection == Direction.FRONT)
-			if (currentSpeed < 0)
-				currentSpeed = 0;
-		if (lastDirection == Direction.BACK)
-			if (currentSpeed > 0)
-				currentSpeed = 0;
-	}
-
-	private void checkCollision(List<Entity> enitities) {
 		for (CollisionBox box : super.getCollisionBoxes())
 			box.update(super.getPosition());
 
@@ -134,12 +96,48 @@ public class Player extends Entity {
 				if (e != this)
 					for (CollisionBox box : e.getCollisionBoxes()) {
 
-						System.out.println(box.getPosition() + " " + tBox.getPosition());
-						
-						if (box.collide(tBox))
-							super.setPosition(super.getLastPosition());
+						CollisionBox xBox = new CollisionBox(
+								Vector3f.add(super.getPosition(), new Vector3f(velocity.x, 0, 0), new Vector3f()),
+								tBox.getWidth(), tBox.getHeight(), tBox.getLength());
+						CollisionBox yBox = new CollisionBox(
+								Vector3f.add(super.getPosition(), new Vector3f(0, velocity.y, 0), new Vector3f()),
+								tBox.getWidth(), tBox.getHeight(), tBox.getLength());
+						CollisionBox zBox = new CollisionBox(
+								Vector3f.add(super.getPosition(), new Vector3f(0, 0, velocity.z), new Vector3f()),
+								tBox.getWidth(), tBox.getHeight(), tBox.getLength());
 
+						CollisionBox xBoxN = new CollisionBox(
+								Vector3f.add(super.getPosition(), new Vector3f(-velocity.x, 0, 0), new Vector3f()),
+								tBox.getWidth(), tBox.getHeight(), tBox.getLength());
+						CollisionBox yBoxN = new CollisionBox(
+								Vector3f.add(super.getPosition(), new Vector3f(0, -velocity.y, 0), new Vector3f()),
+								tBox.getWidth(), tBox.getHeight(), tBox.getLength());
+						CollisionBox zBoxN = new CollisionBox(
+								Vector3f.add(super.getPosition(), new Vector3f(0, 0, -velocity.z), new Vector3f()),
+								tBox.getWidth(), tBox.getHeight(), tBox.getLength());
+
+						if (box.collide(xBox))
+							enable[0][0] = false;
+						if (box.collide(yBox))
+							enable[0][1] = false;
+						if (box.collide(zBox))
+							enable[0][2] = false;
+
+						if (box.collide(xBoxN))
+							enable[1][0] = false;
+						if (box.collide(yBoxN))
+							enable[1][1] = false;
+						if (box.collide(zBoxN))
+							enable[1][2] = false;
+
+						if (!enable[0][1] & enable[1][1] & velocity.y > 0) {
+							velocity.y = 0;
+							this.upwardsSpeed = 0;
+							enable[0][1] = true;
+						}
 					}
+
+		return enable;
 
 	}
 
@@ -151,13 +149,16 @@ public class Player extends Entity {
 		}
 	}
 
-	private void gravityFlow(Float terrainHeight) {
-		isInAir = true;
-		upwardsSpeed -= GRAVITY * DisplayManager.getFrameTimeSeconds();
-		if (flyng & !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
-			if (upwardsSpeed < 0)
-				upwardsSpeed = 0;
-		this.increasePosition(0, upwardsSpeed * DisplayManager.getFrameTimeSeconds(), 0);
+	private float gravityFlow(Float terrainHeight) {
+
+		if (!this.isOnSomething) {
+			isInAir = true;
+			upwardsSpeed -= GRAVITY * DisplayManager.getFrameTimeSeconds();
+			if (flyng & !Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
+				if (upwardsSpeed < 0)
+					upwardsSpeed = 0;
+		} else
+			this.flyng = false;
 
 		if (terrainHeight != null)
 			if (super.getPosition().y < terrainHeight) {
@@ -167,25 +168,12 @@ public class Player extends Entity {
 				flyng = false;
 			}
 
-		if (isInAir & !flyng)
-			if (currentWalkSpeed > (GRAVITY / 10) * DisplayManager.getFrameTimeSeconds())
-				currentWalkSpeed -= (GRAVITY / 10) * DisplayManager.getFrameTimeSeconds();
-			else
-				currentWalkSpeed = (GRAVITY / 10) * DisplayManager.getFrameTimeSeconds();
-		else if (flyng)
-			currentWalkSpeed = 2f * WALK_SPEED;
-		else
-			currentWalkSpeed = WALK_SPEED;
+		return upwardsSpeed * DisplayManager.getFrameTimeSeconds();
 	}
 
 	private void checkInputs() {
 		float rotation = 0;
 		float speed = 0;
-
-		lastPressing = isNowPressing;
-		isNowPressing = false;
-
-		stopping = true;
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
 
@@ -193,29 +181,15 @@ public class Player extends Entity {
 				speed += (float) (currentWalkSpeed * 1.5);
 			else
 				speed += currentWalkSpeed;
-
-			isNowPressing = true;
-			if (!timer.isRunning() & !lastPressing)
-				timer.start();
-
-			stopped = false;
-			stopping = false;
-
-			lastDirection = Direction.FRONT;
 		}
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
 
 			speed += -(currentWalkSpeed / 3) * 2;
 
-			isNowPressing = true;
-			if (!timer.isRunning() & !lastPressing)
-				timer.start();
+			if (Keyboard.isKeyDown(Keyboard.KEY_W))
+				speed = 0;
 
-			stopped = false;
-			stopping = false;
-
-			lastDirection = Direction.BACK;
 		}
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
@@ -226,17 +200,6 @@ public class Player extends Entity {
 				speed += currentWalkSpeed / 2;
 			else if (Keyboard.isKeyDown(Keyboard.KEY_W) & Keyboard.isKeyDown(Keyboard.KEY_S))
 				speed += currentWalkSpeed / 2;
-
-			isNowPressing = true;
-			if (!timer.isRunning() & !lastPressing)
-				timer.start();
-
-			stopped = false;
-			stopping = false;
-
-			lastDirection = Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S) ? Direction.FRONT
-					: Keyboard.isKeyDown(Keyboard.KEY_S) & !Keyboard.isKeyDown(Keyboard.KEY_W) ? Direction.BACK
-							: Direction.FRONT;
 		}
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
@@ -248,16 +211,6 @@ public class Player extends Entity {
 			else if (Keyboard.isKeyDown(Keyboard.KEY_W) & Keyboard.isKeyDown(Keyboard.KEY_S))
 				speed += currentWalkSpeed / 2;
 
-			isNowPressing = true;
-			if (!timer.isRunning() & !lastPressing)
-				timer.start();
-
-			stopped = false;
-			stopping = false;
-
-			lastDirection = Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S) ? Direction.FRONT
-					: Keyboard.isKeyDown(Keyboard.KEY_S) & !Keyboard.isKeyDown(Keyboard.KEY_W) ? Direction.BACK
-							: Direction.FRONT;
 		}
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
@@ -272,12 +225,7 @@ public class Player extends Entity {
 		super.setRotY(super.getRotY() + rotation);
 
 		if (speed != 0)
-			this.assignedSpeed = speed;
-		
-		currentSpeed = assignedSpeed;
-
-		if (stopped)
-			stopping = false;
+			this.currentSpeed = speed;
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_F))
 			flyng = true;

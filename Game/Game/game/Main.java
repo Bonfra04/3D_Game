@@ -87,7 +87,7 @@ public class Main {
 
 		Entity tree = new Entity("tree", "tree", Main.SCALE * 10, new Vector3f(20, Terrain.getHeight(20, 20), 20),
 				new Vector3f(0, 0, 0));
-		tree.addCollisionBox(new CollisionBox(5, 5, 5));
+		tree.addCollisionBox(new CollisionBox(5, 12, 5, new Vector3f(-1.2f, -0.5f, -1.2f)));
 
 		while (!Display.isCloseRequested()) {
 
