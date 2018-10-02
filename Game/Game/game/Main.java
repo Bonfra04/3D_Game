@@ -81,7 +81,7 @@ public class Main {
 		particleSystem.setSpeedError(0.4f);
 		particleSystem.setScaleError(0.3f);
 
-		Entity block = new Block("brick", 20, 1, -20);
+		Entity block = new Block("brick", 30, (int) (Terrain.getHeight(30, 30) + 1), 30);
 
 		Cube c = new Cube("brick");
 

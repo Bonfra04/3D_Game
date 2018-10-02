@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Vector4f;
 
+import ambient.Player;
 import cube.Cube;
 import gameEngine.audio.AudioMaster;
 import gameEngine.entities.Camera;
@@ -18,6 +19,7 @@ import gameEngine.font.GUIText;
 import gameEngine.fontRendering.TextMaster;
 import gameEngine.guis.GuiRenderer;
 import gameEngine.guis.GuiTexture;
+import gameEngine.inventory.Inventory;
 import gameEngine.models.TexturedModel;
 import gameEngine.particles.ParticleMaster;
 import gameEngine.renderEngine.DisplayManager;
@@ -42,6 +44,7 @@ public class ResourceManager {
 	private static final List<Cube> CUBES = new ArrayList<Cube>();
 
 	private static Camera camera;
+	private static Inventory inventory;
 
 	private static MasterRenderer masterRenderer;
 	private static GuiRenderer guiRenderer;
@@ -55,8 +58,9 @@ public class ResourceManager {
 		AudioMaster.init();
 	}
 
-	public static void postInit(Entity player) {
+	public static void postInit(Player player) {
 		camera = new Camera(player);
+		inventory = new Inventory(camera);
 
 		masterRenderer = new MasterRenderer(LOADER, camera);
 
@@ -70,6 +74,8 @@ public class ResourceManager {
 	}
 
 	public static void updateDisplay() {
+		inventory.update();
+		
 		camera.move(TERRAINS);
 
 		ParticleMaster.update(camera);
@@ -201,7 +207,7 @@ public class ResourceManager {
 	public static List<GUIText> getTexts() {
 		return TEXTS;
 	}
-	
+
 	public static void addCube(Cube cube) {
 		CUBES.add(cube);
 	}

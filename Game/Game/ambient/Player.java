@@ -19,6 +19,8 @@ public class Player extends Entity {
 	public static final float GRAVITY = 40.0f;
 	private static final float JUMP_POWER = 15.0f;
 
+	private boolean canUseCommands = true;
+
 	private float currentWalkSpeed = WALK_SPEED;
 
 	private float currentSpeed = 0;
@@ -73,9 +75,8 @@ public class Player extends Entity {
 		if (!enable[0][1]) {
 			this.isOnSomething = true;
 			this.isInAir = false;
-		} else {
+		} else
 			this.isOnSomething = false;
-		}
 
 		this.increasePosition(enable[0][0] ? velocity.x : 0, enable[0][1] ? velocity.y : 0,
 				enable[0][2] ? velocity.z : 0);
@@ -172,76 +173,87 @@ public class Player extends Entity {
 	}
 
 	private void checkInputs() {
-		float rotation = 0;
-		float speed = 0;
+		if (this.canUseCommands) {
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
+			float rotation = 0;
+			float speed = 0;
 
-			if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) & !Keyboard.isKeyDown(Keyboard.KEY_S))
-				speed += (float) (currentWalkSpeed * 1.5);
-			else
-				speed += currentWalkSpeed;
-		}
+			if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
+				if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) & !Keyboard.isKeyDown(Keyboard.KEY_S))
+					speed += (float) (currentWalkSpeed * 1.5);
+				else
+					speed += currentWalkSpeed;
+			}
 
-			speed += -(currentWalkSpeed / 3) * 2;
+			if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
 
-			if (Keyboard.isKeyDown(Keyboard.KEY_W))
-				speed = 0;
+				speed += -(currentWalkSpeed / 3) * 2;
 
-		}
+				if (Keyboard.isKeyDown(Keyboard.KEY_W))
+					speed = 0;
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-			rotation += Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S) ? 25
-					: Keyboard.isKeyDown(Keyboard.KEY_S) & !Keyboard.isKeyDown(Keyboard.KEY_W) ? -25 : 90;
+			}
 
-			if (!Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S))
-				speed += currentWalkSpeed / 2;
-			else if (Keyboard.isKeyDown(Keyboard.KEY_W) & Keyboard.isKeyDown(Keyboard.KEY_S))
-				speed += currentWalkSpeed / 2;
-		}
+			if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+				rotation += Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S) ? 25
+						: Keyboard.isKeyDown(Keyboard.KEY_S) & !Keyboard.isKeyDown(Keyboard.KEY_W) ? -25 : 90;
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-			rotation -= Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S) ? 25
-					: Keyboard.isKeyDown(Keyboard.KEY_S) & !Keyboard.isKeyDown(Keyboard.KEY_W) ? -25 : 90;
+				if (!Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S))
+					speed += currentWalkSpeed / 2;
+				else if (Keyboard.isKeyDown(Keyboard.KEY_W) & Keyboard.isKeyDown(Keyboard.KEY_S))
+					speed += currentWalkSpeed / 2;
+			}
 
-			if (!Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S))
-				speed += currentWalkSpeed / 2;
-			else if (Keyboard.isKeyDown(Keyboard.KEY_W) & Keyboard.isKeyDown(Keyboard.KEY_S))
-				speed += currentWalkSpeed / 2;
+			if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
+				rotation -= Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S) ? 25
+						: Keyboard.isKeyDown(Keyboard.KEY_S) & !Keyboard.isKeyDown(Keyboard.KEY_W) ? -25 : 90;
 
-		}
+				if (!Keyboard.isKeyDown(Keyboard.KEY_W) & !Keyboard.isKeyDown(Keyboard.KEY_S))
+					speed += currentWalkSpeed / 2;
+				else if (Keyboard.isKeyDown(Keyboard.KEY_W) & Keyboard.isKeyDown(Keyboard.KEY_S))
+					speed += currentWalkSpeed / 2;
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-			if (!flyng)
-				jump();
-			else if (flyng)
-				upwardsSpeed = JUMP_POWER * 2;
+			}
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) & !flyng)
-			speed *= 0.5;
+			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
+				if (!flyng)
+					jump();
+				else if (flyng)
+					upwardsSpeed = JUMP_POWER * 2;
 
-		super.setRotY(super.getRotY() + rotation);
+			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) & !flyng)
+				speed *= 0.5;
 
-		if (speed != 0)
-			this.currentSpeed = speed;
+			super.setRotY(super.getRotY() + rotation);
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_F))
-			flyng = true;
+			if (speed != 0)
+				this.currentSpeed = speed;
 
-		if (Keyboard.isKeyDown(Keyboard.KEY_G))
-			flyng = false;
+			if (Keyboard.isKeyDown(Keyboard.KEY_F))
+				flyng = true;
 
-		if (Main.enableController) {
+			if (Keyboard.isKeyDown(Keyboard.KEY_G))
+				flyng = false;
 
-			// TODO add controller stuffs
+			if (Main.enableController) {
 
+				// TODO add controller stuffs
+
+			}
 		}
 
 	}
 
 	public void setFlying(boolean flying) {
 		this.flyng = flying;
+	}
+
+	public void disableCommands() {
+		this.canUseCommands = false;
+	}
+
+	public void enableCommands() {
+		this.canUseCommands = true;
 	}
 }

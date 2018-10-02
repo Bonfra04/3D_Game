@@ -5,10 +5,13 @@ import java.util.List;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector3f;
 
+import ambient.Player;
 import gameEngine.renderEngine.DisplayManager;
 import gameEngine.terrains.Terrain;
 
 public class Camera {
+
+	private boolean canMove;
 
 	private float distanceFromPlayer;
 	private float angleAroundPlayer;
@@ -19,15 +22,16 @@ public class Camera {
 
 	private float terrainPitch;
 
-	private Entity player;
+	private Player player;
 
-	public Camera(Entity player) {
+	public Camera(Player player) {
 		this.player = player;
 		pitch = 20;
 		yaw = 0;
 		position = new Vector3f(0, 0, 70);
 		angleAroundPlayer = 0;
 		distanceFromPlayer = 24f;
+		this.canMove = true;
 
 		Mouse.setCursorPosition(DisplayManager.WIDTH / 2, DisplayManager.HEIGHT / 2);
 		Mouse.setGrabbed(true);
@@ -35,21 +39,24 @@ public class Camera {
 
 	public void move(List<Terrain> terrains) {
 
-		Terrain terrain = null;
+		if (this.canMove) {
 
-		for (Terrain t : terrains)
-			if (t.getHeightOfTerrain(this.getPosition().x, this.getPosition().z) != null)
-				terrain = t;
+			Terrain terrain = null;
 
-		calculatePitch();
-		calculateZoom();
-		calculateAngleAroundPlayer();
+			for (Terrain t : terrains)
+				if (t.getHeightOfTerrain(this.getPosition().x, this.getPosition().z) != null)
+					terrain = t;
 
-		calculatePosition(calculateHorizontalDistance(), calculateVerticalDistance(), terrain);
+			calculatePitch();
+			calculateZoom();
+			calculateAngleAroundPlayer();
 
-		this.yaw = -angleAroundPlayer;
+			calculatePosition(calculateHorizontalDistance(), calculateVerticalDistance(), terrain);
 
-		player.setRotY(180 - yaw);
+			this.yaw = -angleAroundPlayer;
+
+			player.setRotY(180 - yaw);
+		}
 	}
 
 	private void calculatePosition(float horizDistance, float vertiDistance, Terrain terrain) {
@@ -119,6 +126,16 @@ public class Camera {
 		angleAroundPlayer -= angleChange;
 	}
 
+	public void disableCommands() {
+		this.canMove = false;
+		this.player.disableCommands();
+	}
+
+	public void enableCommands() {
+		this.canMove = true;
+		this.player.enableCommands();
+	}
+	
 	public Vector3f getPosition() {
 		return position;
 	}

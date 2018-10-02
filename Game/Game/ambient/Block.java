@@ -27,7 +27,7 @@ public class Block extends Entity {
 
 	private static final RawModel MODEL = LOADER.loadToVAO(VERTICES, TEXTURE_COORDS, INDICES);
 
-	private CollisionBox collisionBox = new CollisionBox(1, 1, 1, new Vector3f(0, -2, 0));
+	private CollisionBox collisionBox = new CollisionBox(1, 1, 1, new Vector3f(0, 0, 0));
 
 	public Block(String texture, int x, int y, int z) {
 		super(new TexturedModel(MODEL, new ModelTexture(LOADER.loadTexture(texture))), 1, new Vector3f(x, y, z),
